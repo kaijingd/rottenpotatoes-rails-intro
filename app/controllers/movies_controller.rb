@@ -17,6 +17,18 @@ class MoviesController < ApplicationController
     #  @filtered_ratings = 
     #end
 
+    @all_ratings = Movie.all_ratings
+    @filtered_ratings = params[:ratings] || session[:ratings]
+    if @filtered_ratings.nil?
+      @movies = Movie.all
+    else
+      @movies = Movie.where(rating: @filtered_ratings.keys)
+    end
+
+    if params[:sort]
+      @movies = @movies.order(params[:sort])
+    end
+
     session[:sort_by] = params[:sort_by] if params[:sort_by]
     session[:ratings] = params[:ratings] if params[:ratings] || params[:commit] == 'Refresh'
 
@@ -30,25 +42,6 @@ class MoviesController < ApplicationController
       flash.keep
       return redirect_to movies_path(sort_by: params[:sort_by], ratings: session[:ratings])
     end
-
-    sort_by = params[:sort_by] || session[:sort_by]
-
-    if sort_by == "title"
-      ordering = {:title => :asc}
-      @title_header = "hilite"
-    elsif sort_by == "release_date"
-      ordering = {:release_date => :asc}
-      @release_date_header = "hilite"
-    end
-
-    @all_ratings = Movie.all_ratings
-    @filtered_ratings = params[:ratings] || session[:ratings]
-    if @filtered_ratings.nil?
-      @movies = Movie.all.order(ordering)
-    else
-      @movies = Movie.where(rating: @filtered_ratings.keys).order(ordering)
-    end
-
   end
 
   def new
