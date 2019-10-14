@@ -18,13 +18,9 @@ class MoviesController < ApplicationController
     #end
 
     @all_ratings = Movie.all_ratings
-    @filtered_ratings = params[:ratings]
-
-    if @filtered_ratings&.any?
-      @movies = Movie.where(rating: @filtered_ratings.keys)
-    else
-      @movies = Movie.all
-    end
+    @filtered_ratings = params[:ratings] || Hash[@all_ratings.map {|rating| [rating, rating]}]
+    @movies = Movie.where(rating: @filtered_ratings.keys)
+    
 
     if params[:sort_by]
       @movies = @movies.order(params[:sort_by])
