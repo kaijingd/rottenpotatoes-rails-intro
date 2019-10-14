@@ -18,15 +18,21 @@ class MoviesController < ApplicationController
     #end
 
     @all_ratings = Movie.all_ratings
-    @filtered_ratings = params[:ratings] || session[:ratings]
-    if @filtered_ratings.nil?
-      @movies = Movie.all
-    else
+    @filtered_ratings = params[:ratings]
+
+    if @filtered_ratings&.any?
       @movies = Movie.where(rating: @filtered_ratings.keys)
+    else
+      @movies = Movie.all
     end
 
-    if params[:sort]
-      @movies = @movies.order(params[:sort])
+    if params[:sort_by]
+      @movies = @movies.order(params[:sort_by])
+      if params[:sort_by] == 'title'
+        @title_header = 'hilite'
+      elsif params[:sort_by] == 'release_date'
+        @release_date_header = 'hilite'
+      end
     end
 
     session[:sort_by] = params[:sort_by] if params[:sort_by]
@@ -35,7 +41,7 @@ class MoviesController < ApplicationController
     if(!params[:sort_by] && !params[:ratings]) && (session[:sort_by] && session[:ratings])
       flash.keep
       return redirect_to movies_path(sort_by: session[:sort_by], ratings: session[:ratings])
-    elsif !params[:sort] && session[:sort]
+    elsif !params[:sort_by] && session[:sort_by]
       flash.keep
       return redirect_to movies_path(sort_by: session[:sort_by], ratings: params[:ratings])
     elsif !params[:ratings] && session[:ratings]
