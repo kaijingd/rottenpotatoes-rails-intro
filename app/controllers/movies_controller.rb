@@ -42,8 +42,12 @@ class MoviesController < ApplicationController
     end
 
     @all_ratings = Movie.all_ratings
-    @filtered_ratings = params[:ratings] || session[:ratings] || Hash[@all_ratings.map{|rating| [rating, rating]}]
-    @movies = Movie.where(rating: @filtered_ratings.keys).order(ordering)
+    @filtered_ratings = params[:ratings] || session[:ratings]
+    if @filtered_ratings.nil?
+      @movies = Movie.all.order(ordering)
+    else
+      @movies = Movie.where(rating: @filtered_ratings.keys).order(ordering)
+    end
 
   end
 
