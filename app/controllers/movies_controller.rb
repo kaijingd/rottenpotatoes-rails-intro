@@ -17,9 +17,11 @@ class MoviesController < ApplicationController
     #  @filtered_ratings = 
     #end
 
-    @all_ratings = Movie.all_ratings
-    @filtered_ratings = params[:ratings] || Hash[@all_ratings.map {|rating| [rating, rating]}]
-    @movies = Movie.where(rating: @filtered_ratings.keys)
+    #@all_ratings = Movie.all_ratings
+    #@filtered_ratings = params[:ratings] || Hash[@all_ratings.map {|rating| [rating, rating]}]
+    #@movies = Movie.where(rating: @filtered_ratings.keys)
+    @all_ratings = Movie.ratings.map { |rating| {name: rating, value: params[:ratings] ? params[:ratings].include?(rating) : true} }
+    @movies = params[:ratings]&.any? ? Movie.find_all_by_ratings(params[:ratings].keys) : Movie.all
     
 
     if params[:sort_by]
